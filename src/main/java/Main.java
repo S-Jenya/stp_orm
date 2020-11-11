@@ -65,7 +65,6 @@ public class Main {
 
         System.out.println("\n----- START PROGRAM -----");
 
-
         boolean flag = false;
         try {
             do {
@@ -73,6 +72,12 @@ public class Main {
                 System.out.println("1. Добавить институт.");
                 System.out.println("2. Вывести список учебных учреждений.");
                 System.out.println("3. UPDATE учебного учреждения.");
+                System.out.println("----------");
+                System.out.println("4. Insert Users & Cards (OneToMany)  ");
+                System.out.println("5. Select Users");
+                System.out.println("6. Select Cards(Users)");
+                System.out.println("7. Delete User");
+                System.out.println("---------\n");
                 System.out.println("0. Выход.");
                 choice = Integer.parseInt(reader.readLine());
 
@@ -134,6 +139,111 @@ public class Main {
                         }
 
                         break;
+
+                    case 4:
+                        Users users = new Users();
+                        System.out.print("Enter User name: ");
+                        String pUserName = reader.readLine();
+                        users.setName(pUserName);
+                        System.out.print("Enter password: ");
+                        String pPassword = reader.readLine();
+                        users.setPassword(pPassword);
+
+                        Transaction TestTransaction = null;
+                        try (Session session = createSessionFactory().openSession()) {
+                            TestTransaction = session.beginTransaction();
+                            session.save(users);
+
+                            Boolean stopCreateCards = false;
+                            Cards cards;
+                            do {
+                                cards = new Cards();
+                                System.out.print("Enter HeadLine: ");
+                                String pHeadLine = reader.readLine();
+                                cards.setHeadline(pHeadLine);
+                                cards.setUsers(users);
+                                session.save(cards);
+                                System.out.println("--- USER SUCCESS ADDED ---");
+
+                                System.out.println("Желаете ещё создать карточку (1/0)?");
+                                Integer pAns = Integer.parseInt(reader.readLine());
+                                if(pAns == 0) stopCreateCards = true;
+
+                            } while (stopCreateCards == false);
+
+                            TestTransaction.commit();
+                            System.out.println("--- CARDS SUCCESS ADDED ---");
+
+                            System.out.println("User: " + users.toString());
+                            System.out.println("Card1: " + cards.toString());
+                            session.clear();
+                            session.close();
+                        } catch (Exception e) {
+                            if (TestTransaction != null) {
+                                TestTransaction.rollback();
+                            }
+                            e.printStackTrace();
+                        }
+                        break;
+
+                    case 5:
+                        try (Session session = createSessionFactory().openSession()) {
+                            Query query =  session.createQuery("from Users");
+                            List<Users> list = query.list();
+                            for(Users s : list) {
+                                System.out.println(s);
+                            }
+                            System.out.println("SUCCESS DONE");
+                            session.close();
+
+                        }catch (Exception e){
+                            System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
+                        }
+                        break;
+                    case 6:
+                        System.out.println("Введите ID пользователя:");
+                        Integer pIdUser = Integer.parseInt(reader.readLine());
+                        try (Session session = createSessionFactory().openSession()) {
+
+                            System.out.println("Данные пользователя ID = " + pIdUser);
+                            Query query =  session.createQuery("from Users where id_user  = :pId");
+                            query.setParameter("pId", pIdUser);
+                            System.out.println(query.list());
+
+                            query =  session.createQuery("from Cards where users.id_user  = :pId");
+                            query.setParameter("pId", pIdUser);
+                            List<Cards> list = query.list();
+                            for(Cards s : list) {
+                                System.out.println(s);
+                            }
+                            System.out.println("SUCCESS DONE");
+                            session.close();
+
+                        }catch (Exception e){
+                            System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
+                        }
+                        break;
+                    case 7:
+                        System.out.println("Введите ID пользователя:");
+                        Integer pIdeDel = Integer.parseInt(reader.readLine());
+                        try (Session session = createSessionFactory().openSession()) {
+                            session.getTransaction().begin();
+                            Query query =  session.createQuery("DELETE from Cards where users.id_user = :pIdeDel");
+                            query.setParameter("pIdeDel", pIdeDel);
+                            query.executeUpdate();
+                            System.out.println("Deleted from cards");
+
+                            query =  session.createQuery("DELETE from Users where id_user = :pIdeDel");
+                            query.setParameter("pIdeDel", pIdeDel);
+                            query.executeUpdate();
+
+                            System.out.println("SUCCESS DONE");
+                            session.close();
+
+                        }catch (Exception e){
+                            System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
+                        }
+                        break;
                     case 0:
                         flag = true;
                         break;
@@ -146,9 +256,6 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Некорректные данные!\nПодробнее: " + e.getMessage());
         }
-
-
-
 
 
         System.out.println("\n----- END PROGRAM -----\n");
