@@ -1,15 +1,35 @@
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Cards {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_card")
     private Integer id;
     private String headline;
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
     private Users users;
+
+    public void setInstitutions(List<Institution> institutions) {
+        this.institutions = institutions;
+    }
+
+    public List<Institution> getInstitutions() {
+        return institutions;
+    }
+
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+            name = "Card_institution",
+            joinColumns = { @JoinColumn(name = "card_id") },
+            inverseJoinColumns = { @JoinColumn(name = "institution_id") }
+    )
+    private List<Institution> institutions;
 
     public void setUsers(Users users) {
         this.users = users;

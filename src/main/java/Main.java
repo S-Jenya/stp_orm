@@ -1,4 +1,3 @@
-import net.bytebuddy.implementation.bind.annotation.Super;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -8,9 +7,11 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 
+import javax.persistence.criteria.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -36,33 +37,6 @@ public class Main {
     }
     public static void main(String[] args) throws IOException {
 
-//        рабочее подключение к DB через jdbc
-//        System.out.println("START stp_ORM");
-//        String url = "jdbc:mysql://127.0.0.1:3306/misc?serverTimezone=Europe/Minsk&useSSL=false";
-//        String username = "fred";
-//        String password = "zap";
-//        System.out.println("Connecting...");
-//
-//        Statement statement = null;
-//        ResultSet result;
-//
-//        try (Connection connection = DriverManager.getConnection(url, username, password)) {
-//            System.out.println("Connection successful!");
-//            String query = "select * from institution";
-//            statement = connection.createStatement();
-//            result = statement.executeQuery(query);
-//            System.out.println(result);
-//            while(result.next()) {
-//                System.out.println(result.getString("institution_id") + " " + result.getString("name"));
-//            }
-//
-//        } catch (SQLException e) {
-//            System.out.println("Connection failed!");
-//            e.printStackTrace();
-//        }
-
-        //-------------------------------------
-
         System.out.println("\n----- START PROGRAM -----");
 
         boolean flag = false;
@@ -72,12 +46,14 @@ public class Main {
                 System.out.println("1. Добавить институт.");
                 System.out.println("2. Вывести список учебных учреждений.");
                 System.out.println("3. UPDATE учебного учреждения.");
+                System.out.println("4. Delete учебное учреждение.");
                 System.out.println("----------");
-                System.out.println("4. Insert Users & Cards (OneToMany)  ");
-                System.out.println("5. Select Users");
-                System.out.println("6. Select Cards(Users)");
-                System.out.println("7. Delete User");
+                System.out.println("5. Insert Users & Cards (OneToMany)  ");
+                System.out.println("6. Select Users");
+                System.out.println("7. Select Cards(Users)");
+                System.out.println("8. Delete User");
                 System.out.println("---------\n");
+                System.out.println("9. Update User");
                 System.out.println("0. Выход.");
                 choice = Integer.parseInt(reader.readLine());
 
@@ -104,15 +80,28 @@ public class Main {
                         break;
                     case 2:
                         try (Session session = createSessionFactory().openSession()) {
-//                            Рабочий select по ID
-//                            Institution result = (Institution) session.get(Institution.class, 3);
-//                            System.out.println(result);
-                            Query query =  session.createQuery("from Institution");
-                            List<Institution> list = query.list();
-                            for(Institution s : list) {
+                            System.out.println("Список учебных учреждений");
+//                            Criteria criteria = session.createCriteria(Institution.class);
+//                            List<Institution> list = criteria.list();
+//                            for(Institution s : list) {
+//                                System.out.println(s);
+//                            }
+
+//                            Работает!
+//                            Institution pinst = (Institution) session.get(Institution.class, 1);
+//                            System.out.println(pinst);
+
+                            CriteriaBuilder cbSelect = session.getCriteriaBuilder();
+                            CriteriaQuery<Institution> cq = cbSelect.createQuery(Institution.class);
+                            Root<Institution> rootEntry = cq.from(Institution.class);
+                            cq.select(rootEntry);
+                            Query query = session.createQuery(cq);
+                            List<Institution> collection2 = query.getResultList();
+                            for(Institution s : collection2) {
                                 System.out.println(s);
                             }
-                            System.out.println("SUCCESS DONE");
+
+                            System.out.println("SUCCESS created");
                             session.close();
 
                         }catch (Exception e){
@@ -121,18 +110,22 @@ public class Main {
                         break;
                     case 3:
                         try (Session session = createSessionFactory().openSession()) {
-                            Institution inst = new Institution();
                             System.out.print("Enter institution ID: ");
-                            int pId = Integer.parseInt(reader.readLine());
+                            String pUserName = reader.readLine();
                             System.out.print("Enter institution NAME: ");
-                            String pName = reader.readLine();
+                            String pNewName = reader.readLine();
 
-                            transaction = session.beginTransaction();
-                            Institution updInst = new Institution(pId, pName);
-                            session.update(updInst);
+                            CriteriaBuilder cbUpd = session.getCriteriaBuilder();
+                            CriteriaUpdate<Institution> criteriaUpdate = cbUpd.createCriteriaUpdate(Institution.class);
+                            Root<Institution> root = criteriaUpdate.from(Institution.class);
+                            criteriaUpdate.set("name", pNewName);
+                            criteriaUpdate.where(cbUpd.equal(root.get("name"), pUserName));
 
-                            transaction.commit();
-                            System.out.println("SUCCESS UPDATED");
+                            Transaction transactionUpd = session.beginTransaction();
+                            session.createQuery(criteriaUpdate).executeUpdate();
+                            transactionUpd.commit();
+
+                            System.out.println("SUCCESS updated");
                             session.close();
                         }catch (Exception e){
                             System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
@@ -141,6 +134,28 @@ public class Main {
                         break;
 
                     case 4:
+                        try (Session session = createSessionFactory().openSession()) {
+                            System.out.print("Enter institution name for DELETE: ");
+                            String pInstName = reader.readLine();
+
+                            CriteriaBuilder cbDel = session.getCriteriaBuilder();
+                            CriteriaDelete<Institution> criteriaDelete = cbDel.createCriteriaDelete(Institution.class);
+                            Root<Institution> root = criteriaDelete.from(Institution.class);
+                            criteriaDelete.where(cbDel.equal(root.get("name"), pInstName));
+
+                            Transaction transactionDel = session.beginTransaction();
+                            session.createQuery(criteriaDelete).executeUpdate();
+                            transactionDel.commit();
+
+                            System.out.println("SUCCESS deleted");
+                            session.close();
+                        }catch (Exception e){
+                            System.out.println("ОШИБКА при DELETE\nПодробнее: " + e.getMessage());
+                        }
+
+                        break;
+
+                    case 5:
                         Users users = new Users();
                         System.out.print("Enter User name: ");
                         String pUserName = reader.readLine();
@@ -156,14 +171,34 @@ public class Main {
 
                             Boolean stopCreateCards = false;
                             Cards cards;
+                            List<Cards> myCardsList = new ArrayList<Cards>();
                             do {
                                 cards = new Cards();
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
                                 cards.setHeadline(pHeadLine);
                                 cards.setUsers(users);
+                                myCardsList.add(cards);
+
+                                Boolean stopCreateInstCard = false;
+                                Institution instCard = new Institution();
+                                List<Institution> myInstList = new ArrayList<Institution>();
+                                do{
+                                    System.out.print("Enter name institution: ");
+                                    String pInstName = reader.readLine();
+                                    instCard.setName(pInstName);
+                                    myInstList.add(instCard);
+
+                                    System.out.println("Желаете ещё добавить институт (1/0)?");
+                                    Integer pAnsInstCard = Integer.parseInt(reader.readLine());
+                                    if(pAnsInstCard == 0) stopCreateInstCard = true;
+                                }while (stopCreateInstCard == false);
+
+                                cards.setInstitutions(myInstList);
+                                instCard.setCards(myCardsList);
+
                                 session.save(cards);
-                                System.out.println("--- USER SUCCESS ADDED ---");
+                                session.save(instCard);
 
                                 System.out.println("Желаете ещё создать карточку (1/0)?");
                                 Integer pAns = Integer.parseInt(reader.readLine());
@@ -171,6 +206,8 @@ public class Main {
 
                             } while (stopCreateCards == false);
 
+
+                            System.out.println("--- USER SUCCESS ADDED ---");
                             TestTransaction.commit();
                             System.out.println("--- CARDS SUCCESS ADDED ---");
 
@@ -186,7 +223,7 @@ public class Main {
                         }
                         break;
 
-                    case 5:
+                    case 6:
                         try (Session session = createSessionFactory().openSession()) {
                             Query query =  session.createQuery("from Users");
                             List<Users> list = query.list();
@@ -200,7 +237,7 @@ public class Main {
                             System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
                         }
                         break;
-                    case 6:
+                    case 7:
                         System.out.println("Введите ID пользователя:");
                         Integer pIdUser = Integer.parseInt(reader.readLine());
                         try (Session session = createSessionFactory().openSession()) {
@@ -223,7 +260,7 @@ public class Main {
                             System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
                         }
                         break;
-                    case 7:
+                    case 8:
                         System.out.println("Введите ID пользователя:");
                         Integer pIdeDel = Integer.parseInt(reader.readLine());
                         try (Session session = createSessionFactory().openSession()) {
@@ -242,6 +279,30 @@ public class Main {
 
                         }catch (Exception e){
                             System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
+                        }
+                        break;
+                    case 9:
+                        System.out.println("Update User");
+                        try (Session session = createSessionFactory().openSession()) {
+                            System.out.print("Enter user name for Update: ");
+                            String pUserNameForEdit = reader.readLine();
+                            System.out.print("Enter NEW user name: ");
+                            String pNewUserName = reader.readLine();
+
+                            CriteriaBuilder cbUpd = session.getCriteriaBuilder();
+                            CriteriaUpdate<Users> criteriaUpdate = cbUpd.createCriteriaUpdate(Users.class);
+                            Root<Users> root = criteriaUpdate.from(Users.class);
+                            criteriaUpdate.set("name", pNewUserName);
+                            criteriaUpdate.where(cbUpd.equal(root.get("name"), pUserNameForEdit));
+
+                            Transaction transactionUpd = session.beginTransaction();
+                            session.createQuery(criteriaUpdate).executeUpdate();
+                            transactionUpd.commit();
+
+                            System.out.println("SUCCESS updated");
+                            session.close();
+                        }catch (Exception e){
+                            System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
                         }
                         break;
                     case 0:
