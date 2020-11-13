@@ -10,6 +10,10 @@ public class Users {
     @Column(name = "id_user")
     private Integer id_user;
 
+    public Integer getId_user() {
+        return id_user;
+    }
+
     @Column(unique = true)
     private String name;
     private String password;

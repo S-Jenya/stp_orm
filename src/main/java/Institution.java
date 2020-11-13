@@ -16,7 +16,7 @@ public class Institution {
         return Cards;
     }
 
-    @Column(unique = true)
+    //@Column(unique = true)
     private String name;
 
     public void setName(String name) {

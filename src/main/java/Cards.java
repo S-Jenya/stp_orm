@@ -15,6 +15,10 @@ public class Cards {
     @JoinColumn(name = "id_user", nullable = false)
     private Users users;
 
+    public Integer getId() {
+        return id;
+    }
+
     public void setInstitutions(List<Institution> institutions) {
         this.institutions = institutions;
     }
