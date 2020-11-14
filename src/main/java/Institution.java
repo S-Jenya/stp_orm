@@ -23,12 +23,11 @@ public class Institution {
         this.name = name;
     }
 
-    @ManyToMany(cascade = { CascadeType.ALL })
-    @JoinTable(
-            name = "Card_institution",
-            joinColumns = { @JoinColumn(name = "institution_id") },
-            inverseJoinColumns = { @JoinColumn(name = "card_id") }
-    )
+    public Integer getId() {
+        return id;
+    }
+
+    @ManyToMany(mappedBy = "institutions")
     private List<Cards> Cards;
 
     public Institution() {    }
