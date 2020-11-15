@@ -51,6 +51,9 @@ public class Cards {
         return headline;
     }
 
+    public void removeFrom(List<Institution> pInst){
+        this.institutions.remove(pInst);
+    }
 
     public Cards() {    }
 

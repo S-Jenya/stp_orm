@@ -21,7 +21,6 @@ public class Main {
     public static SessionFactory sessionFactory = null;
     public static int choice;
     public static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    public static Institution inst = null;
 
     public static SessionFactory createSessionFactory() {
         StandardServiceRegistry registry = null;
@@ -38,6 +37,7 @@ public class Main {
         }
         return sessionFactory;
     }
+
     public static void main(String[] args) throws IOException {
 
         System.out.println("\n----- START PROGRAM -----");
@@ -52,12 +52,16 @@ public class Main {
                 System.out.println("4. Delete User");
                 System.out.println("---------");
                 System.out.println("9. Update User");
-                System.out.println("10. Update Instiutions of Cards");
+                System.out.println("10. Update Instiutions in Cards");
                 System.out.println("11. Update Card");
                 System.out.println("12. Delete Card");
                 System.out.println("---------");
                 System.out.println("20. Select institution");
                 System.out.println("21. Delete institution");
+                System.out.println("---------");
+                System.out.println("30. Insert User only");
+                System.out.println("31. Insert Сard for User");
+                System.out.println("32. Insert Institution in Card");
                 System.out.println("---------");
                 System.out.println("0. Выход.");
                 System.out.println("---------\nВыберите действие: ");
@@ -93,7 +97,7 @@ public class Main {
                                 Boolean stopCreateInstCard = false;
                                 Institution instCard = null;
                                 List<Institution> myInstList = new ArrayList<Institution>();
-                                do{
+                                do {
                                     instCard = new Institution();
                                     System.out.print("Enter name institution: ");
                                     String pInstName = reader.readLine();
@@ -102,15 +106,15 @@ public class Main {
 
                                     System.out.println("Желаете ещё добавить институт (1/0)?");
                                     Integer pAnsInstCard = Integer.parseInt(reader.readLine());
-                                    if(pAnsInstCard == 0) stopCreateInstCard = true;
-                                }while (stopCreateInstCard == false);
+                                    if (pAnsInstCard == 0) stopCreateInstCard = true;
+                                } while (stopCreateInstCard == false);
 
                                 cards.setInstitutions(myInstList);
                                 session.save(cards);
 
                                 System.out.println("Желаете ещё создать карточку (1/0)?");
                                 Integer pAns = Integer.parseInt(reader.readLine());
-                                if(pAns == 0) stopCreateCards = true;
+                                if (pAns == 0) stopCreateCards = true;
 
                             } while (stopCreateCards == false);
 
@@ -136,14 +140,14 @@ public class Main {
                             List<Users> collection = query.getResultList();
 
                             System.out.println("Список пользователей");
-                            for(Users s : collection) {
+                            for (Users s : collection) {
                                 System.out.println(s);
                             }
 
                             System.out.println("SUCCESS");
                             session.close();
 
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
                         }
                         break;
@@ -175,18 +179,18 @@ public class Main {
                                 Query<Cards> query2 = session.createQuery(getUserCards);
                                 List<Cards> resultCards = query2.getResultList();
 
-                                System.out.println("Список карточек пользователя ("+ pUserNameForCard +") ");
-                                for(Cards s : resultCards) {
+                                System.out.println("Список карточек пользователя (" + pUserNameForCard + ") ");
+                                for (Cards s : resultCards) {
                                     System.out.println(s);
                                 }
                             } else {
-                                System.out.println("Пользователь с данным UserName ("+ pUserNameForCard +") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + pUserNameForCard + ") не найден!");
                             }
 
                             System.out.println("SUCCESS DONE");
                             session.close();
 
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
                         }
                         break;
@@ -202,7 +206,7 @@ public class Main {
                             List<Users> collection = query.getResultList();
 
                             System.out.println("Список пользователей");
-                            for(Users s : collection) {
+                            for (Users s : collection) {
                                 System.out.println(s);
                             }
 
@@ -217,7 +221,7 @@ public class Main {
                             Query<Users> query2 = session.createQuery(getUser);
                             List<Users> resultsUser = query2.getResultList();
                             Integer userId = resultsUser.get(0).getId_user();
-                            if(resultsUser.size() != 0) {
+                            if (resultsUser.size() != 0) {
 
                                 CriteriaBuilder cbDel = session.getCriteriaBuilder();
                                 CriteriaDelete<Cards> criteriaDelete = cbDel.createCriteriaDelete(Cards.class);
@@ -241,12 +245,12 @@ public class Main {
                                 System.out.println("SUCCESS DONE");
 
                             } else {
-                                System.out.println("Пользователь с именем "+ pUsName +" не найден");
+                                System.out.println("Пользователь с именем " + pUsName + " не найден");
                             }
 
 
                             session.close();
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при DELETE\nПодробнее: " + e.getMessage());
                         }
 
@@ -271,30 +275,43 @@ public class Main {
 
                             System.out.println("SUCCESS updated");
                             session.close();
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
                         }
                         break;
+
                     case 10:
                         System.out.println("Update Institution Card");
                         System.out.print("Enter User name: ");
-                        String pUserCard = reader.readLine();
+                        String pUserCard2 = reader.readLine();
 
+                        Transaction transactionDel = null;
                         try (Session session = createSessionFactory().openSession()) {
+                            transactionDel = session.beginTransaction();
 
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
                             CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
                             Root<Users> c = getUser.from(Users.class);
                             getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUserCard));
+                            getUser.where(cb.equal(c.get("name"), pUserCard2));
                             Query<Users> query = session.createQuery(getUser);
                             List<Users> resultsUser = query.getResultList();
-                            System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
+                            System.out.println("Пользователь " + pUserCard2 + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
-                                System.out.println("Id пользователя: " + userIdis);
+
+                                CriteriaBuilder cbGetUserCard = session.getCriteriaBuilder();
+                                CriteriaQuery<Cards> getUserCard2 = cbGetUserCard.createQuery(Cards.class);
+                                Root<Cards> cRoot = getUserCard2.from(Cards.class);
+                                getUserCard2.select(cRoot);
+                                getUserCard2.where(cbGetUserCard.equal(cRoot.get("users"), userIdis));
+                                Query<Cards> query2 = session.createQuery(getUserCard2);
+                                List<Cards> resultsUserCard = query2.getResultList();
+                                System.out.println("Карточки у пользователя" + pUserCard2 + ":");
+                                for (Cards uCars : resultsUserCard)
+                                    System.out.println("name: " + uCars.getHeadline());
 
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
@@ -308,46 +325,49 @@ public class Main {
                                 getUserCard.where(cb.and(p1, p2));
 
                                 Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                List<Cards> results = queryUserCard.getResultList();
-                                List<Institution> ins = results.get(0).getInstitutions();
+                                Cards resultsCars = queryUserCard.getSingleResult();
+                                List<Institution> ins = resultsCars.getInstitutions();
 
-                                System.out.print("Имена институтов пользователя " + pUserCard + "\n");
-                                for(Institution i : ins) {
-                                    System.out.println(i);
+                                System.out.print("Имена институтов пользователя " + pUserCard2 + "\n");
+                                for (Institution i : ins) System.out.println(i);
+
+                                Integer cardIdis = resultsCars.getId();
+                                System.out.println("Id карточки: " + cardIdis);
+
+                                System.out.print("Enter OLD institution NAME: ");
+                                String pOldInstName = reader.readLine();
+
+                                System.out.print("Enter NEW institution NAME: ");
+                                String pNesInstName = reader.readLine();
+
+                                boolean isRevers = false;
+                                for (Institution i : ins) {
+                                    if (pOldInstName.equals(i.getName())) {
+                                        i.setName(pNesInstName);
+                                        isRevers = true;
+                                        System.out.print("Новое имя установлено!");
+                                    }
                                 }
 
+                                if (isRevers) {
+                                    resultsCars.setInstitutions(ins);
+                                    session.update(resultsCars);
+                                    transactionDel.commit();
 
-                                if (results.size() != 0) {
-                                    Integer cardIdis = results.get(0).getId();
-                                    System.out.println("Id карточки: " + cardIdis);
+                                    System.out.print("Обновлённый список институтов\n");
+                                    for (Institution i : ins) System.out.println(i);
 
-                                    // поиск Id Института
-                                    System.out.print("Enter OLD institution NAME: ");
-                                    String pOldInstName = reader.readLine();
-
-                                    System.out.print("Enter NEW institution NAME: ");
-                                    String pNesInstName = reader.readLine();
-
-                                    CriteriaBuilder cbUpd = session.getCriteriaBuilder();
-                                    CriteriaUpdate<Institution> criteriaUpdate = cbUpd.createCriteriaUpdate(Institution.class);
-                                    Root<Institution> root = criteriaUpdate.from(Institution.class);
-                                    criteriaUpdate.set("name", pNesInstName);
-                                    criteriaUpdate.where(cbUpd.equal(root.get("name"), pOldInstName));
-
-                                    Transaction transactionUpd = session.beginTransaction();
-                                    session.createQuery(criteriaUpdate).executeUpdate();
-                                    transactionUpd.commit();
-
+                                    System.out.println("SUCCESS");
                                 } else {
-                                    System.out.println("Картачка с данным headline ("+ pHeadLine +") не найдена!");
+                                    System.out.print("Введённое имя института (" + pOldInstName + ") не найдено!\n");
                                 }
 
                             } else {
-                                System.out.println("Пользователь с данным UserName ("+ pUserCard +") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + pUserCard2 + ") не найден!");
                             }
 
                             session.close();
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
                         }
                         break;
@@ -402,21 +422,21 @@ public class Main {
                                 Query<Cards> query2 = session.createQuery(getUserCards);
                                 List<Cards> resultCards = query2.getResultList();
 
-                                System.out.println("Список карточек пользователя ("+ pUserNameForUpdCard +") ");
-                                for(Cards s : resultCards) {
+                                System.out.println("Список карточек пользователя (" + pUserNameForUpdCard + ") ");
+                                for (Cards s : resultCards) {
                                     System.out.println(s);
                                 }
 
                                 System.out.println("SUCCESS updated");
 
                             } else {
-                                System.out.println("Пользователь с данным UserName ("+ pUserNameForUpdCard +") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + pUserNameForUpdCard + ") не найден!");
                             }
 
                             System.out.println("SUCCESS DONE");
                             session.close();
 
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
                         }
                         break;
@@ -432,7 +452,7 @@ public class Main {
                             getUser.where(cb.equal(c.get("name"), pUsName));
                             Query<Users> query = session.createQuery(getUser);
                             List<Users> resultsUser = query.getResultList();
-                            if(resultsUser.size() != 0) {
+                            if (resultsUser.size() != 0) {
 
                                 Integer userIdi = resultsUser.get(0).getId_user();
                                 // поиск Id карточки
@@ -452,23 +472,23 @@ public class Main {
 
                                 System.out.print("Вся информация об этой карточке будет адалена! Удалить? (1/0)");
                                 Integer myAnsw = Integer.parseInt(reader.readLine());
-                                if(myAnsw == 1) {
+                                if (myAnsw == 1) {
                                     CriteriaBuilder cbDel = session.getCriteriaBuilder();
                                     CriteriaDelete<Cards> criteriaDelete = cbDel.createCriteriaDelete(Cards.class);
                                     Root<Cards> root = criteriaDelete.from(Cards.class);
                                     criteriaDelete.where(cbDel.equal(root.get("users"), userIdi));
 
-                                    Transaction transactionDel = session.beginTransaction();
+                                    Transaction transactionDel3 = session.beginTransaction();
                                     session.createQuery(criteriaDelete).executeUpdate();
-                                    transactionDel.commit();
+                                    transactionDel3.commit();
                                     System.out.println("SUCCESS DONE");
                                 }
                             } else {
-                                System.out.println("Пользователь с именем "+ pUsName +" не найден");
+                                System.out.println("Пользователь с именем " + pUsName + " не найден");
                             }
 
                             session.close();
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при DELETE\nПодробнее: " + e.getMessage());
                         }
                         break;
@@ -480,7 +500,6 @@ public class Main {
 
                         try (Session session = createSessionFactory().openSession()) {
 
-                            // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
                             CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
                             Root<Users> c = getUser.from(Users.class);
@@ -488,7 +507,7 @@ public class Main {
                             getUser.where(cb.equal(c.get("name"), pUs));
                             Query<Users> query = session.createQuery(getUser);
                             List<Users> resultsUser = query.getResultList();
-                            System.out.println("Данные пользователя " + pUs +": \n" + resultsUser);
+                            System.out.println("Данные пользователя " + pUs + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
@@ -499,7 +518,7 @@ public class Main {
                                 getUserCardInfo.where(cb.equal(cardRoot.get("users"), userIdis));
                                 Query<Cards> query2 = session.createQuery(getUserCardInfo);
                                 List<Cards> resultsUserCard = query2.getResultList();
-                                System.out.println("Карточки у пользователя" + pUs +": \n" + resultsUserCard);
+                                System.out.println("Карточки у пользователя" + pUs + ": \n" + resultsUserCard);
 
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
@@ -516,16 +535,16 @@ public class Main {
                                 List<Institution> ins = results.get(0).getInstitutions();
 
                                 System.out.print("Имена институтов пользователя " + pUs + "\n");
-                                for(Institution i : ins) {
+                                for (Institution i : ins) {
                                     System.out.println(i);
                                 }
 
                             } else {
-                                System.out.println("Пользователь с данным UserName ("+ pUs +") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + pUs + ") не найден!");
                             }
 
                             session.close();
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
                         }
                         break;
@@ -535,7 +554,9 @@ public class Main {
                         System.out.print("Enter User name: ");
                         String pUsCard = reader.readLine();
 
+                        Transaction transactionDelInst = null;
                         try (Session session = createSessionFactory().openSession()) {
+                            transactionDelInst = session.beginTransaction();
 
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -545,7 +566,7 @@ public class Main {
                             getUser.where(cb.equal(c.get("name"), pUsCard));
                             Query<Users> query = session.createQuery(getUser);
                             List<Users> resultsUser = query.getResultList();
-                            System.out.println("Данные пользователя " + pUsCard +": \n" + resultsUser);
+                            System.out.println("Данные пользователя " + pUsCard + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
@@ -557,7 +578,7 @@ public class Main {
                                 getUserCardInfo.where(cb.equal(cardRoot.get("users"), userIdis));
                                 Query<Cards> query2 = session.createQuery(getUserCardInfo);
                                 List<Cards> resultsUserCard = query2.getResultList();
-                                System.out.println("Карточки у пользователя" + pUsCard +": \n" + resultsUserCard);
+                                System.out.println("Карточки у пользователя" + pUsCard + ": \n" + resultsUserCard);
 
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
@@ -571,49 +592,225 @@ public class Main {
                                 getUserCard.where(cb.and(p1, p2));
 
                                 Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                List<Cards> results = queryUserCard.getResultList();
-                                List<Institution> ins = results.get(0).getInstitutions();
+                                Cards results = queryUserCard.getSingleResult();
+                                List<Institution> ins = results.getInstitutions();
 
                                 System.out.print("Имена институтов пользователя " + pUsCard + "\n");
-                                for(Institution i : ins) System.out.println(i);
+                                for (Institution i : ins) System.out.println(i);
 
-                                if (results.size() != 0) {
-                                    Integer cardIdis = results.get(0).getId();
-                                    System.out.println("Id карточки: " + cardIdis);
+                                System.out.print("Enter institution NAME for delete: ");
+                                String pDelIame = reader.readLine();
 
-                                    System.out.print("Enter institution NAME for delete: ");
-                                    String pDelIame = reader.readLine();
-
-                                    boolean isDel = false;
-                                    for(Institution ii : ins) {
-                                        if(pDelIame.equals(ii.getName())){
-                                            CriteriaBuilder cbDel = session.getCriteriaBuilder();
-                                            CriteriaDelete<Institution> criteriaDelete = cbDel.createCriteriaDelete(Institution.class);
-                                            Root<Institution> root = criteriaDelete.from(Institution.class);
-                                            criteriaDelete.where(cbDel.equal(root.get("id"), ii.getId()));
-
-                                            Transaction transactionDel = session.beginTransaction();
-                                            session.createQuery(criteriaDelete).executeUpdate();
-                                            transactionDel.commit();
-                                            isDel= true;
-                                            System.out.println("SUCCESS DONE");
-                                        }
+                                Institution instForDel = null;
+                                for (Institution ii : ins) {
+                                    if (pDelIame.equals(ii.getName())) {
+                                        instForDel = ii;
                                     }
+                                }
+                                if(instForDel != null) {
+                                    ins.remove(instForDel);
 
-                                    if(!isDel) {
-                                        System.out.println("Запись не найлена");
-                                    }
+                                    results.setInstitutions(ins);
+                                    session.update(results);
+                                    transactionDelInst.commit();
 
+                                    System.out.println("SUCCESS");
                                 } else {
-                                    System.out.println("Картачка с данным headline ("+ pHeadLine +") не найдена!");
+                                    System.out.println("Институт с именем "+ pDelIame +" не найден!");
                                 }
 
                             } else {
-                                System.out.println("Пользователь с данным UserName ("+ pUsCard +") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + pUsCard + ") не найден!");
                             }
 
                             session.close();
-                        }catch (Exception e){
+                        } catch (Exception e) {
+                            System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
+                        }
+                        break;
+
+                    case 30:
+                        System.out.println("Insert user only");
+                        Users usersOnly = new Users();
+                        System.out.print("Enter User name: ");
+                        String pUserNameOnly = reader.readLine();
+                        usersOnly.setName(pUserNameOnly);
+                        System.out.print("Enter password: ");
+                        String pPswdOnly = reader.readLine();
+                        usersOnly.setPassword(pPswdOnly);
+
+                        Transaction transAddUserOnly = null;
+                        try (Session session = createSessionFactory().openSession()) {
+                            transAddUserOnly = session.beginTransaction();
+                            session.save(usersOnly);
+                            transAddUserOnly.commit();
+                            System.out.println("--- SUCCESS ---");
+                            session.clear();
+                            session.close();
+                        } catch (Exception e) {
+                            if (transAddUserOnly != null) {
+                                transAddUserOnly.rollback();
+                            }
+                            e.printStackTrace();
+                        }
+                        break;
+
+                    case 31:
+                        System.out.print("Insert card only");
+                        System.out.print("Enter User name: ");
+                        String pUserNameForCardOnly = reader.readLine();
+
+                        Transaction transactionAddCard = null;
+                        try (Session session = createSessionFactory().openSession()) {
+                            transactionAddCard = session.beginTransaction();
+
+                            // беру ID пользователя
+                            CriteriaBuilder cb = session.getCriteriaBuilder();
+                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
+                            Root<Users> c = getUser.from(Users.class);
+                            getUser.select(c);
+                            getUser.where(cb.equal(c.get("name"), pUserNameForCardOnly));
+                            Query<Users> query = session.createQuery(getUser);
+                            List<Users> resultsUser = query.getResultList();
+                            System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
+
+                            if (resultsUser.size() != 0) {
+                                Integer userIdis = resultsUser.get(0).getId_user();
+                                System.out.println("Id пользователя: " + userIdis);
+
+                                Boolean stopCreateCards = false;
+                                Cards cards;
+                                List<Cards> myCardsList = new ArrayList<Cards>();
+                                do {
+                                    cards = new Cards();
+                                    System.out.print("Enter HeadLine: ");
+                                    String pHeadLine = reader.readLine();
+                                    cards.setHeadline(pHeadLine);
+                                    cards.setUsers(resultsUser.get(0));
+                                    myCardsList.add(cards);
+
+                                    Boolean stopCreateInstCard = false;
+                                    Institution instCard = null;
+                                    List<Institution> myInstList = new ArrayList<Institution>();
+                                    do {
+                                        instCard = new Institution();
+                                        System.out.print("Enter name institution: ");
+                                        String pInstName = reader.readLine();
+                                        instCard.setName(pInstName);
+                                        myInstList.add(instCard);
+
+                                        System.out.println("Желаете ещё добавить институт (1/0)?");
+                                        Integer pAnsInstCard = Integer.parseInt(reader.readLine());
+                                        if (pAnsInstCard == 0) stopCreateInstCard = true;
+                                    } while (stopCreateInstCard == false);
+
+                                    cards.setInstitutions(myInstList);
+                                    session.save(cards);
+
+                                    System.out.println("Желаете ещё создать карточку (1/0)?");
+                                    Integer pAns = Integer.parseInt(reader.readLine());
+                                    if (pAns == 0) stopCreateCards = true;
+
+                                } while (stopCreateCards == false);
+
+                                transactionAddCard.commit();
+                                System.out.println("--- SUCCESS ADDED ---");
+                                session.clear();
+                                session.close();
+
+
+                            } else {
+                                System.out.println("Пользователь с данным UserName (" + pUserNameForCardOnly + ") не найден!");
+                            }
+
+                            System.out.println("SUCCESS DONE");
+                            session.close();
+
+                        } catch (Exception e) {
+                            System.out.println("ОШИБКА при выборке данных\nПодробнее: " + e.getMessage());
+                        }
+                        break;
+
+                    case 32:
+                        System.out.println("Select institution");
+                        System.out.print("Enter User name: ");
+                        String pNameUsStr = reader.readLine();
+
+                        Transaction transAddInst = null;
+                        try (Session session = createSessionFactory().openSession()) {
+                            transAddInst = session.beginTransaction();
+
+                            CriteriaBuilder cb = session.getCriteriaBuilder();
+                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
+                            Root<Users> c = getUser.from(Users.class);
+                            getUser.select(c);
+                            getUser.where(cb.equal(c.get("name"), pNameUsStr));
+                            Query<Users> query = session.createQuery(getUser);
+                            List<Users> resultsUser = query.getResultList();
+                            System.out.println("Данные пользователя " + pNameUsStr + ": \n" + resultsUser);
+
+                            if (resultsUser.size() != 0) {
+                                Integer userIdis = resultsUser.get(0).getId_user();
+
+                                CriteriaQuery<Cards> getUserCardInfo = cb.createQuery(Cards.class);
+                                Root<Cards> cardRoot = getUserCardInfo.from(Cards.class);
+                                getUserCardInfo.select(cardRoot);
+                                getUserCardInfo.where(cb.equal(cardRoot.get("users"), userIdis));
+                                Query<Cards> query2 = session.createQuery(getUserCardInfo);
+                                List<Cards> resultsUserCard = query2.getResultList();
+                                System.out.println("Карточки у пользователя " + pNameUsStr + ":");
+                                for (Cards card: resultsUserCard) System.out.println("name: " + card.getHeadline());
+
+                                System.out.print("Enter HeadLine: ");
+                                String pHeadLine = reader.readLine();
+                                CriteriaQuery<Cards> getUserCard = cb.createQuery(Cards.class);
+                                Root<Cards> card = getUserCard.from(Cards.class);
+                                getUserCard.select(card);
+
+                                Predicate p1 = cb.equal(card.get("users"), userIdis);
+                                Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
+                                getUserCard.where(cb.and(p1, p2));
+
+                                Query<Cards> queryUserCard = session.createQuery(getUserCard);
+                                Cards results = queryUserCard.getSingleResult();
+                                List<Institution> ins = results.getInstitutions();
+
+                                System.out.print("Имена институтов пользователя " + pNameUsStr + "\n");
+                                for (Institution i : ins) {
+                                    System.out.println(i);
+                                }
+
+                                boolean flagStop = false;
+                                do{
+                                    System.out.print("Enter name new institut: ");
+                                    String pNewNameInstStr = reader.readLine();
+                                    Institution newInst = new Institution();
+                                    newInst.setName(pNewNameInstStr);
+                                    ins.add(newInst);
+                                    System.out.println("Желаете ещё добавить институт (1/0)?");
+                                    Integer pAns = Integer.parseInt(reader.readLine());
+
+                                    if (pAns == 0){
+                                        flagStop = true;
+                                        results.setInstitutions(ins);
+                                        session.update(results);
+                                        transAddInst.commit();
+                                        System.out.println("--- SUCCESS ADDED ---");
+                                        System.out.print("Имена институтов пользователя " + pNameUsStr + "\n");
+                                        for (Institution i : ins) System.out.println("name: " + i.getName());
+                                        session.clear();
+                                        session.close();
+
+                                    }
+                                }while (flagStop == false);
+
+
+                            } else {
+                                System.out.println("Пользователь с данным UserName (" + pNameUsStr + ") не найден!");
+                            }
+
+                            session.close();
+                        } catch (Exception e) {
                             System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
                         }
                         break;

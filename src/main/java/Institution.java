@@ -8,15 +8,14 @@ public class Institution {
     @Column(name = "institution_id")
     private Integer id;
 
-    public void setCards(List<Cards> employees) {
-        this.Cards = employees;
+    public void setCards(List<Cards> pCards) {
+        this.Cards = pCards;
     }
 
     public List<Cards> getCards() {
         return Cards;
     }
 
-    //@Column(unique = true)
     private String name;
 
     public void setName(String name) {
