@@ -756,7 +756,9 @@ public class Main {
                                 Query<Card> query2 = session.createQuery(getUserCardInfo);
                                 List<Card> resultsUserCard = query2.getResultList();
                                 System.out.println("Карточки у пользователя " + pNameUsStr + ":");
-                                for (Card card: resultsUserCard) System.out.println("name: " + card.getHeadline());
+                                for (Card card: resultsUserCard){
+                                    System.out.println("name: " + card.getHeadline());
+                                }
 
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
