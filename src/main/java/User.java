@@ -1,10 +1,8 @@
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.List;
 
 @Entity
-public class Users {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
@@ -18,12 +16,12 @@ public class Users {
     private String name;
     private String password;
 
-    public void setCards(Set<Cards> cards) {
-        this.cards = cards;
+    public void setCards(Set<Card> card) {
+        this.card = card;
     }
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<Cards> cards;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Set<Card> card;
 
     public void setPassword(String password) {
         this.password = password;
@@ -33,8 +31,8 @@ public class Users {
         this.name = name;
     }
 
-    public Users() {    }
-    public Users(Integer id, String name, String password) {
+    public User() {    }
+    public User(Integer id, String name, String password) {
         this.id_user = id;
         this.name = name;
         this.password = password;
