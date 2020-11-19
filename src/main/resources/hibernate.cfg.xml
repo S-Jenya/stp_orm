@@ -28,8 +28,8 @@
         <property name="hibernate.dbcp.maxWaitMillis">-1</property>
 
         <mapping class="Institution" />
-        <mapping class="Users" />
-        <mapping class="Cards" />
+        <mapping class="User" />
+        <mapping class="Card" />
 
         <!-- Names the annotated entity class -->
 

@@ -1,4 +1,3 @@
-import com.sun.jmx.mbeanserver.Repository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -8,8 +7,6 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -70,29 +67,29 @@ public class Main {
                 switch (choice) {
 
                     case 1:
-                        Users users = new Users();
+                        User user = new User();
                         System.out.print("Enter User name: ");
                         String pUserName = reader.readLine();
-                        users.setName(pUserName);
+                        user.setName(pUserName);
                         System.out.print("Enter password: ");
                         String pPassword = reader.readLine();
-                        users.setPassword(pPassword);
+                        user.setPassword(pPassword);
 
                         Transaction testTransaction = null;
                         try (Session session = createSessionFactory().openSession()) {
                             testTransaction = session.beginTransaction();
-                            session.save(users);
+                            session.save(user);
 
                             Boolean stopCreateCards = false;
-                            Cards cards;
-                            List<Cards> myCardsList = new ArrayList<Cards>();
+                            Card card;
+                            List<Card> myCardList = new ArrayList<Card>();
                             do {
-                                cards = new Cards();
+                                card = new Card();
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
-                                cards.setHeadline(pHeadLine);
-                                cards.setUsers(users);
-                                myCardsList.add(cards);
+                                card.setHeadline(pHeadLine);
+                                card.setUsers(user);
+                                myCardList.add(card);
 
                                 Boolean stopCreateInstCard = false;
                                 Institution instCard = null;
@@ -109,8 +106,8 @@ public class Main {
                                     if (pAnsInstCard == 0) stopCreateInstCard = true;
                                 } while (stopCreateInstCard == false);
 
-                                cards.setInstitutions(myInstList);
-                                session.save(cards);
+                                card.setInstitution(myInstList);
+                                session.save(card);
 
                                 System.out.println("Желаете ещё создать карточку (1/0)?");
                                 Integer pAns = Integer.parseInt(reader.readLine());
@@ -133,14 +130,14 @@ public class Main {
                     case 2:
                         try (Session session = createSessionFactory().openSession()) {
                             CriteriaBuilder cbSelect = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> cq = cbSelect.createQuery(Users.class);
-                            Root<Users> rootEntry = cq.from(Users.class);
+                            CriteriaQuery<User> cq = cbSelect.createQuery(User.class);
+                            Root<User> rootEntry = cq.from(User.class);
                             cq.select(rootEntry);
                             Query query = session.createQuery(cq);
-                            List<Users> collection = query.getResultList();
+                            List<User> collection = query.getResultList();
 
                             System.out.println("Список пользователей");
-                            for (Users s : collection) {
+                            for (User s : collection) {
                                 System.out.println(s);
                             }
 
@@ -160,27 +157,27 @@ public class Main {
 
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> usersRoot = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> usersRoot = getUser.from(User.class);
                             getUser.select(usersRoot);
                             getUser.where(cb.equal(usersRoot.get("name"), pUserNameForCard));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
                                 System.out.println("Id пользователя: " + userIdis);
 
-                                CriteriaQuery<Cards> getUserCards = cb.createQuery(Cards.class);
-                                Root<Cards> myRoot = getUserCards.from(Cards.class);
+                                CriteriaQuery<Card> getUserCards = cb.createQuery(Card.class);
+                                Root<Card> myRoot = getUserCards.from(Card.class);
                                 getUserCards.select(myRoot);
-                                getUserCards.where(cb.equal(myRoot.get("users"), userIdis));
-                                Query<Cards> query2 = session.createQuery(getUserCards);
-                                List<Cards> resultCards = query2.getResultList();
+                                getUserCards.where(cb.equal(myRoot.get("user"), userIdis));
+                                Query<Card> query2 = session.createQuery(getUserCards);
+                                List<Card> resultCards = query2.getResultList();
 
                                 System.out.println("Список карточек пользователя (" + pUserNameForCard + ") ");
-                                for (Cards s : resultCards) {
+                                for (Card s : resultCards) {
                                     System.out.println(s);
                                 }
                             } else {
@@ -199,14 +196,14 @@ public class Main {
                         try (Session session = createSessionFactory().openSession()) {
 
                             CriteriaBuilder cbSelect = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> cbSelectQuery = cbSelect.createQuery(Users.class);
-                            Root<Users> rootEntry = cbSelectQuery.from(Users.class);
+                            CriteriaQuery<User> cbSelectQuery = cbSelect.createQuery(User.class);
+                            Root<User> rootEntry = cbSelectQuery.from(User.class);
                             cbSelectQuery.select(rootEntry);
                             Query query = session.createQuery(cbSelectQuery);
-                            List<Users> collection = query.getResultList();
+                            List<User> collection = query.getResultList();
 
                             System.out.println("Список пользователей");
-                            for (Users s : collection) {
+                            for (User s : collection) {
                                 System.out.println(s);
                             }
 
@@ -214,19 +211,19 @@ public class Main {
                             String pUsName = reader.readLine();
 
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> usersRoot = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> usersRoot = getUser.from(User.class);
                             getUser.select(usersRoot);
                             getUser.where(cb.equal(usersRoot.get("name"), pUsName));
-                            Query<Users> querySelect = session.createQuery(getUser);
-                            List<Users> resultsUser = querySelect.getResultList();
+                            Query<User> querySelect = session.createQuery(getUser);
+                            List<User> resultsUser = querySelect.getResultList();
                             Integer userId = resultsUser.get(0).getId_user();
                             if (resultsUser.size() != 0) {
 
                                 CriteriaBuilder cbDel = session.getCriteriaBuilder();
-                                CriteriaDelete<Cards> criteriaDelete = cbDel.createCriteriaDelete(Cards.class);
-                                Root<Cards> root = criteriaDelete.from(Cards.class);
-                                criteriaDelete.where(cbDel.equal(root.get("users"), userId));
+                                CriteriaDelete<Card> criteriaDelete = cbDel.createCriteriaDelete(Card.class);
+                                Root<Card> root = criteriaDelete.from(Card.class);
+                                criteriaDelete.where(cbDel.equal(root.get("user"), userId));
 
                                 Transaction transactionDel = session.beginTransaction();
                                 session.createQuery(criteriaDelete).executeUpdate();
@@ -234,8 +231,8 @@ public class Main {
 
 
                                 CriteriaBuilder cbDel2 = session.getCriteriaBuilder();
-                                CriteriaDelete<Users> criteriaDelete2 = cbDel2.createCriteriaDelete(Users.class);
-                                Root<Users> root2 = criteriaDelete2.from(Users.class);
+                                CriteriaDelete<User> criteriaDelete2 = cbDel2.createCriteriaDelete(User.class);
+                                Root<User> root2 = criteriaDelete2.from(User.class);
                                 criteriaDelete2.where(cbDel2.equal(root2.get("id_user"), userId));
 
                                 Transaction tranDelUs = session.beginTransaction();
@@ -264,8 +261,8 @@ public class Main {
                             String pNewUserName = reader.readLine();
 
                             CriteriaBuilder cbUpd = session.getCriteriaBuilder();
-                            CriteriaUpdate<Users> criteriaUpdate = cbUpd.createCriteriaUpdate(Users.class);
-                            Root<Users> root = criteriaUpdate.from(Users.class);
+                            CriteriaUpdate<User> criteriaUpdate = cbUpd.createCriteriaUpdate(User.class);
+                            Root<User> root = criteriaUpdate.from(User.class);
                             criteriaUpdate.set("name", pNewUserName);
                             criteriaUpdate.where(cbUpd.equal(root.get("name"), pUserNameForEdit));
 
@@ -291,42 +288,42 @@ public class Main {
 
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pUserCard2));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("Пользователь " + pUserCard2 + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
 
                                 CriteriaBuilder cbGetUserCard = session.getCriteriaBuilder();
-                                CriteriaQuery<Cards> getUserCard2 = cbGetUserCard.createQuery(Cards.class);
-                                Root<Cards> cRoot = getUserCard2.from(Cards.class);
+                                CriteriaQuery<Card> getUserCard2 = cbGetUserCard.createQuery(Card.class);
+                                Root<Card> cRoot = getUserCard2.from(Card.class);
                                 getUserCard2.select(cRoot);
-                                getUserCard2.where(cbGetUserCard.equal(cRoot.get("users"), userIdis));
-                                Query<Cards> query2 = session.createQuery(getUserCard2);
-                                List<Cards> resultsUserCard = query2.getResultList();
+                                getUserCard2.where(cbGetUserCard.equal(cRoot.get("user"), userIdis));
+                                Query<Card> query2 = session.createQuery(getUserCard2);
+                                List<Card> resultsUserCard = query2.getResultList();
                                 System.out.println("Карточки у пользователя" + pUserCard2 + ":");
-                                for (Cards uCars : resultsUserCard)
+                                for (Card uCars : resultsUserCard)
                                     System.out.println("name: " + uCars.getHeadline());
 
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
-                                CriteriaQuery<Cards> getUserCard = cb.createQuery(Cards.class);
-                                Root<Cards> card = getUserCard.from(Cards.class);
+                                CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
+                                Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("users"), userIdis);
+                                Predicate p1 = cb.equal(card.get("user"), userIdis);
                                 Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
                                 getUserCard.where(cb.and(p1, p2));
 
-                                Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                Cards resultsCars = queryUserCard.getSingleResult();
-                                List<Institution> ins = resultsCars.getInstitutions();
+                                Query<Card> queryUserCard = session.createQuery(getUserCard);
+                                Card resultsCars = queryUserCard.getSingleResult();
+                                List<Institution> ins = resultsCars.getInstitution();
 
                                 System.out.print("Имена институтов пользователя " + pUserCard2 + "\n");
                                 for (Institution i : ins) System.out.println(i);
@@ -350,7 +347,7 @@ public class Main {
                                 }
 
                                 if (isRevers) {
-                                    resultsCars.setInstitutions(ins);
+                                    resultsCars.setInstitution(ins);
                                     session.update(resultsCars);
                                     transactionDel.commit();
 
@@ -382,12 +379,12 @@ public class Main {
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
 
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pUserNameForUpdCard));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
 
                             if (resultsUser.size() != 0) {
@@ -401,11 +398,11 @@ public class Main {
                                 String strNew = reader.readLine();
 
                                 CriteriaBuilder cardUpd = session.getCriteriaBuilder();
-                                CriteriaUpdate<Cards> criteriaUpdate = cardUpd.createCriteriaUpdate(Cards.class);
-                                Root<Cards> my = criteriaUpdate.from(Cards.class);
+                                CriteriaUpdate<Card> criteriaUpdate = cardUpd.createCriteriaUpdate(Card.class);
+                                Root<Card> my = criteriaUpdate.from(Card.class);
                                 criteriaUpdate.set("headline", strNew);
 
-                                Predicate p1 = cardUpd.equal(my.get("users"), userIdis);
+                                Predicate p1 = cardUpd.equal(my.get("user"), userIdis);
                                 Predicate p2 = cardUpd.equal(my.get("headline"), strOld);
                                 criteriaUpdate.where(cardUpd.and(p1, p2));
 
@@ -415,15 +412,15 @@ public class Main {
                                 transactionUpd.commit();
 
                                 // вывод результата
-                                CriteriaQuery<Cards> getUserCards = cb.createQuery(Cards.class);
-                                Root<Cards> my2 = getUserCards.from(Cards.class);
+                                CriteriaQuery<Card> getUserCards = cb.createQuery(Card.class);
+                                Root<Card> my2 = getUserCards.from(Card.class);
                                 getUserCards.select(my2);
-                                getUserCards.where(cb.equal(my2.get("users"), userIdis));
-                                Query<Cards> query2 = session.createQuery(getUserCards);
-                                List<Cards> resultCards = query2.getResultList();
+                                getUserCards.where(cb.equal(my2.get("user"), userIdis));
+                                Query<Card> query2 = session.createQuery(getUserCards);
+                                List<Card> resultCards = query2.getResultList();
 
                                 System.out.println("Список карточек пользователя (" + pUserNameForUpdCard + ") ");
-                                for (Cards s : resultCards) {
+                                for (Card s : resultCards) {
                                     System.out.println(s);
                                 }
 
@@ -446,37 +443,37 @@ public class Main {
                             String pUsName = reader.readLine();
 
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pUsName));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             if (resultsUser.size() != 0) {
 
                                 Integer userIdi = resultsUser.get(0).getId_user();
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
-                                CriteriaQuery<Cards> getUserCard = cb.createQuery(Cards.class);
-                                Root<Cards> card = getUserCard.from(Cards.class);
+                                CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
+                                Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("users"), userIdi);
+                                Predicate p1 = cb.equal(card.get("user"), userIdi);
                                 Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
                                 getUserCard.where(cb.and(p1, p2));
 
-                                Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                List<Cards> results = queryUserCard.getResultList();
-                                List<Institution> ins = results.get(0).getInstitutions();
+                                Query<Card> queryUserCard = session.createQuery(getUserCard);
+                                List<Card> results = queryUserCard.getResultList();
+                                List<Institution> ins = results.get(0).getInstitution();
 
                                 System.out.print("Вся информация об этой карточке будет адалена! Удалить? (1/0)");
                                 Integer myAnsw = Integer.parseInt(reader.readLine());
                                 if (myAnsw == 1) {
                                     CriteriaBuilder cbForDel = session.getCriteriaBuilder();
-                                    CriteriaDelete<Cards> criteriaDelete = cbForDel.createCriteriaDelete(Cards.class);
-                                    Root<Cards> root = criteriaDelete.from(Cards.class);
-                                    criteriaDelete.where(cbForDel.equal(root.get("users"), userIdi));
+                                    CriteriaDelete<Card> criteriaDelete = cbForDel.createCriteriaDelete(Card.class);
+                                    Root<Card> root = criteriaDelete.from(Card.class);
+                                    criteriaDelete.where(cbForDel.equal(root.get("user"), userIdi));
 
                                     Transaction transactionDel3 = session.beginTransaction();
                                     session.createQuery(criteriaDelete).executeUpdate();
@@ -501,38 +498,38 @@ public class Main {
                         try (Session session = createSessionFactory().openSession()) {
 
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pUs));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("Данные пользователя " + pUs + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
 
-                                CriteriaQuery<Cards> getUserCardInfo = cb.createQuery(Cards.class);
-                                Root<Cards> cardRoot = getUserCardInfo.from(Cards.class);
+                                CriteriaQuery<Card> getUserCardInfo = cb.createQuery(Card.class);
+                                Root<Card> cardRoot = getUserCardInfo.from(Card.class);
                                 getUserCardInfo.select(cardRoot);
-                                getUserCardInfo.where(cb.equal(cardRoot.get("users"), userIdis));
-                                Query<Cards> query2 = session.createQuery(getUserCardInfo);
-                                List<Cards> resultsUserCard = query2.getResultList();
+                                getUserCardInfo.where(cb.equal(cardRoot.get("user"), userIdis));
+                                Query<Card> query2 = session.createQuery(getUserCardInfo);
+                                List<Card> resultsUserCard = query2.getResultList();
                                 System.out.println("Карточки у пользователя" + pUs + ": \n" + resultsUserCard);
 
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
-                                CriteriaQuery<Cards> getUserCard = cb.createQuery(Cards.class);
-                                Root<Cards> card = getUserCard.from(Cards.class);
+                                CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
+                                Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("users"), userIdis);
+                                Predicate p1 = cb.equal(card.get("user"), userIdis);
                                 Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
                                 getUserCard.where(cb.and(p1, p2));
 
-                                Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                List<Cards> results = queryUserCard.getResultList();
-                                List<Institution> ins = results.get(0).getInstitutions();
+                                Query<Card> queryUserCard = session.createQuery(getUserCard);
+                                List<Card> results = queryUserCard.getResultList();
+                                List<Institution> ins = results.get(0).getInstitution();
 
                                 System.out.print("Имена институтов пользователя " + pUs + "\n");
                                 for (Institution i : ins) {
@@ -560,40 +557,40 @@ public class Main {
 
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pUsCard));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("Данные пользователя " + pUsCard + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
                                 System.out.println("Id пользователя: " + userIdis);
 
-                                CriteriaQuery<Cards> getUserCardInfo = cb.createQuery(Cards.class);
-                                Root<Cards> cardRoot = getUserCardInfo.from(Cards.class);
+                                CriteriaQuery<Card> getUserCardInfo = cb.createQuery(Card.class);
+                                Root<Card> cardRoot = getUserCardInfo.from(Card.class);
                                 getUserCardInfo.select(cardRoot);
-                                getUserCardInfo.where(cb.equal(cardRoot.get("users"), userIdis));
-                                Query<Cards> query2 = session.createQuery(getUserCardInfo);
-                                List<Cards> resultsUserCard = query2.getResultList();
+                                getUserCardInfo.where(cb.equal(cardRoot.get("user"), userIdis));
+                                Query<Card> query2 = session.createQuery(getUserCardInfo);
+                                List<Card> resultsUserCard = query2.getResultList();
                                 System.out.println("Карточки у пользователя" + pUsCard + ": \n" + resultsUserCard);
 
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
-                                CriteriaQuery<Cards> getUserCard = cb.createQuery(Cards.class);
-                                Root<Cards> card = getUserCard.from(Cards.class);
+                                CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
+                                Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("users"), userIdis);
+                                Predicate p1 = cb.equal(card.get("user"), userIdis);
                                 Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
                                 getUserCard.where(cb.and(p1, p2));
 
-                                Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                Cards results = queryUserCard.getSingleResult();
-                                List<Institution> ins = results.getInstitutions();
+                                Query<Card> queryUserCard = session.createQuery(getUserCard);
+                                Card results = queryUserCard.getSingleResult();
+                                List<Institution> ins = results.getInstitution();
 
                                 System.out.print("Имена институтов пользователя " + pUsCard + "\n");
                                 for (Institution i : ins) System.out.println(i);
@@ -610,7 +607,7 @@ public class Main {
                                 if(instForDel != null) {
                                     ins.remove(instForDel);
 
-                                    results.setInstitutions(ins);
+                                    results.setInstitution(ins);
                                     session.update(results);
                                     transactionDelInst.commit();
 
@@ -631,18 +628,18 @@ public class Main {
 
                     case 30:
                         System.out.println("Insert user only");
-                        Users usersOnly = new Users();
+                        User userOnly = new User();
                         System.out.print("Enter User name: ");
                         String pUserNameOnly = reader.readLine();
-                        usersOnly.setName(pUserNameOnly);
+                        userOnly.setName(pUserNameOnly);
                         System.out.print("Enter password: ");
                         String pPswdOnly = reader.readLine();
-                        usersOnly.setPassword(pPswdOnly);
+                        userOnly.setPassword(pPswdOnly);
 
                         Transaction transAddUserOnly = null;
                         try (Session session = createSessionFactory().openSession()) {
                             transAddUserOnly = session.beginTransaction();
-                            session.save(usersOnly);
+                            session.save(userOnly);
                             transAddUserOnly.commit();
                             System.out.println("--- SUCCESS ---");
                             session.clear();
@@ -666,12 +663,12 @@ public class Main {
 
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pUserNameForCardOnly));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
 
                             if (resultsUser.size() != 0) {
@@ -679,15 +676,15 @@ public class Main {
                                 System.out.println("Id пользователя: " + userIdis);
 
                                 Boolean stopCreateCards = false;
-                                Cards cards;
-                                List<Cards> myCardsList = new ArrayList<Cards>();
+                                Card card;
+                                List<Card> myCardList = new ArrayList<Card>();
                                 do {
-                                    cards = new Cards();
+                                    card = new Card();
                                     System.out.print("Enter HeadLine: ");
                                     String pHeadLine = reader.readLine();
-                                    cards.setHeadline(pHeadLine);
-                                    cards.setUsers(resultsUser.get(0));
-                                    myCardsList.add(cards);
+                                    card.setHeadline(pHeadLine);
+                                    card.setUsers(resultsUser.get(0));
+                                    myCardList.add(card);
 
                                     Boolean stopCreateInstCard = false;
                                     Institution instCard = null;
@@ -704,8 +701,8 @@ public class Main {
                                         if (pAnsInstCard == 0) stopCreateInstCard = true;
                                     } while (stopCreateInstCard == false);
 
-                                    cards.setInstitutions(myInstList);
-                                    session.save(cards);
+                                    card.setInstitution(myInstList);
+                                    session.save(card);
 
                                     System.out.println("Желаете ещё создать карточку (1/0)?");
                                     Integer pAns = Integer.parseInt(reader.readLine());
@@ -741,39 +738,39 @@ public class Main {
                             transAddInst = session.beginTransaction();
 
                             CriteriaBuilder cb = session.getCriteriaBuilder();
-                            CriteriaQuery<Users> getUser = cb.createQuery(Users.class);
-                            Root<Users> c = getUser.from(Users.class);
+                            CriteriaQuery<User> getUser = cb.createQuery(User.class);
+                            Root<User> c = getUser.from(User.class);
                             getUser.select(c);
                             getUser.where(cb.equal(c.get("name"), pNameUsStr));
-                            Query<Users> query = session.createQuery(getUser);
-                            List<Users> resultsUser = query.getResultList();
+                            Query<User> query = session.createQuery(getUser);
+                            List<User> resultsUser = query.getResultList();
                             System.out.println("Данные пользователя " + pNameUsStr + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
 
-                                CriteriaQuery<Cards> getUserCardInfo = cb.createQuery(Cards.class);
-                                Root<Cards> cardRoot = getUserCardInfo.from(Cards.class);
+                                CriteriaQuery<Card> getUserCardInfo = cb.createQuery(Card.class);
+                                Root<Card> cardRoot = getUserCardInfo.from(Card.class);
                                 getUserCardInfo.select(cardRoot);
-                                getUserCardInfo.where(cb.equal(cardRoot.get("users"), userIdis));
-                                Query<Cards> query2 = session.createQuery(getUserCardInfo);
-                                List<Cards> resultsUserCard = query2.getResultList();
+                                getUserCardInfo.where(cb.equal(cardRoot.get("user"), userIdis));
+                                Query<Card> query2 = session.createQuery(getUserCardInfo);
+                                List<Card> resultsUserCard = query2.getResultList();
                                 System.out.println("Карточки у пользователя " + pNameUsStr + ":");
-                                for (Cards card: resultsUserCard) System.out.println("name: " + card.getHeadline());
+                                for (Card card: resultsUserCard) System.out.println("name: " + card.getHeadline());
 
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
-                                CriteriaQuery<Cards> getUserCard = cb.createQuery(Cards.class);
-                                Root<Cards> card = getUserCard.from(Cards.class);
+                                CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
+                                Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("users"), userIdis);
+                                Predicate p1 = cb.equal(card.get("user"), userIdis);
                                 Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
                                 getUserCard.where(cb.and(p1, p2));
 
-                                Query<Cards> queryUserCard = session.createQuery(getUserCard);
-                                Cards results = queryUserCard.getSingleResult();
-                                List<Institution> ins = results.getInstitutions();
+                                Query<Card> queryUserCard = session.createQuery(getUserCard);
+                                Card results = queryUserCard.getSingleResult();
+                                List<Institution> ins = results.getInstitution();
 
                                 System.out.print("Имена институтов пользователя " + pNameUsStr + "\n");
                                 for (Institution i : ins) {
@@ -792,7 +789,7 @@ public class Main {
 
                                     if (pAns == 0){
                                         flagStop = true;
-                                        results.setInstitutions(ins);
+                                        results.setInstitution(ins);
                                         session.update(results);
                                         transAddInst.commit();
                                         System.out.println("--- SUCCESS ADDED ---");

@@ -1,10 +1,8 @@
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
-public class Cards {
+public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_card")
@@ -13,18 +11,18 @@ public class Cards {
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
-    private Users users;
+    private User user;
 
     public Integer getId() {
         return id;
     }
 
-    public void setInstitutions(List<Institution> institutions) {
-        this.institutions = institutions;
+    public void setInstitution(List<Institution> institutions) {
+        this.institution = institutions;
     }
 
-    public List<Institution> getInstitutions() {
-        return institutions;
+    public List<Institution> getInstitution() {
+        return institution;
     }
 
     @ManyToMany(cascade = { CascadeType.ALL })
@@ -33,14 +31,14 @@ public class Cards {
             joinColumns = { @JoinColumn(name = "card_id") },
             inverseJoinColumns = { @JoinColumn(name = "institution_id") }
     )
-    private List<Institution> institutions;
+    private List<Institution> institution;
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setUsers(User user) {
+        this.user = user;
     }
 
-    public Users getUsers() {
-        return users;
+    public User getUsers() {
+        return user;
     }
 
     public void setHeadline(String headline) {
@@ -52,12 +50,12 @@ public class Cards {
     }
 
     public void removeFrom(List<Institution> pInst){
-        this.institutions.remove(pInst);
+        this.institution.remove(pInst);
     }
 
-    public Cards() {    }
+    public Card() {    }
 
-    public Cards(Integer id, String headline) {
+    public Card(Integer id, String headline) {
         this.id = id;
         this.headline = headline;
     }
