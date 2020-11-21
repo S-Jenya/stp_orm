@@ -88,7 +88,7 @@ public class Main {
                                 System.out.print("Enter HeadLine: ");
                                 String pHeadLine = reader.readLine();
                                 card.setHeadline(pHeadLine);
-                                card.setUsers(user);
+                                card.setUser(user);
                                 myCardList.add(card);
 
                                 Boolean stopCreateInstCard = false;
@@ -683,7 +683,7 @@ public class Main {
                                     System.out.print("Enter HeadLine: ");
                                     String pHeadLine = reader.readLine();
                                     card.setHeadline(pHeadLine);
-                                    card.setUsers(resultsUser.get(0));
+                                    card.setUser(resultsUser.get(0));
                                     myCardList.add(card);
 
                                     Boolean stopCreateInstCard = false;

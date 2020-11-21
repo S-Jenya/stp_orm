@@ -16,10 +16,6 @@ public class User {
     private String name;
     private String password;
 
-    public void setCards(Set<Card> card) {
-        this.card = card;
-    }
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Card> card;
 
@@ -36,14 +32,6 @@ public class User {
         this.id_user = id;
         this.name = name;
         this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public String toString() {

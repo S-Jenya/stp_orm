@@ -8,11 +8,11 @@ public class Institution {
     @Column(name = "institution_id")
     private Integer id;
 
-    public void setCards(List<Card> pCards) {
+    public void setCard(List<Card> pCards) {
         this.Card = pCards;
     }
 
-    public List<Card> getCards() {
+    public List<Card> getCard() {
         return Card;
     }
 

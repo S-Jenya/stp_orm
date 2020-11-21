@@ -18,11 +18,11 @@ public class Card {
     }
 
     public void setInstitution(List<Institution> institutions) {
-        this.institution = institutions;
+        this.institutions = institutions;
     }
 
     public List<Institution> getInstitution() {
-        return institution;
+        return institutions;
     }
 
     @ManyToMany(cascade = { CascadeType.ALL })
@@ -31,13 +31,13 @@ public class Card {
             joinColumns = { @JoinColumn(name = "card_id") },
             inverseJoinColumns = { @JoinColumn(name = "institution_id") }
     )
-    private List<Institution> institution;
+    private List<Institution> institutions;
 
-    public void setUsers(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
-    public User getUsers() {
+    public User getUser() {
         return user;
     }
 
@@ -50,7 +50,7 @@ public class Card {
     }
 
     public void removeFrom(List<Institution> pInst){
-        this.institution.remove(pInst);
+        this.institutions.remove(pInst);
     }
 
     public Card() {    }
