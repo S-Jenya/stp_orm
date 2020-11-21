@@ -8,12 +8,12 @@ public class Institution {
     @Column(name = "institution_id")
     private Integer id;
 
-    public void setCard(List<Card> pCards) {
-        this.Card = pCards;
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
     }
 
-    public List<Card> getCard() {
-        return Card;
+    public List<Card> getCards() {
+        return cards;
     }
 
     private String name;
@@ -27,7 +27,7 @@ public class Institution {
     }
 
     @ManyToMany(mappedBy = "institution")
-    private List<Card> Card;
+    private List<Card> cards;
 
     public Institution() {    }
     public Institution(Integer id, String name) {

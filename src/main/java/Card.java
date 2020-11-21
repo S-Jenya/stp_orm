@@ -17,11 +17,11 @@ public class Card {
         return id;
     }
 
-    public void setInstitution(List<Institution> institutions) {
+    public void setInstitutions(List<Institution> institutions) {
         this.institutions = institutions;
     }
 
-    public List<Institution> getInstitution() {
+    public List<Institution> getInstitutions() {
         return institutions;
     }
 
@@ -49,8 +49,8 @@ public class Card {
         return headline;
     }
 
-    public void removeFrom(List<Institution> pInst){
-        this.institutions.remove(pInst);
+    public void removeFrom(List<Institution> institutions){
+        this.institutions.remove(institutions);
     }
 
     public Card() {    }

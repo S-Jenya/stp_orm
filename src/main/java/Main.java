@@ -69,11 +69,11 @@ public class Main {
                     case 1:
                         User user = new User();
                         System.out.print("Enter User name: ");
-                        String pUserName = reader.readLine();
-                        user.setName(pUserName);
+                        String userName = reader.readLine();
+                        user.setName(userName);
                         System.out.print("Enter password: ");
-                        String pPassword = reader.readLine();
-                        user.setPassword(pPassword);
+                        String passwordStr = reader.readLine();
+                        user.setPassword(passwordStr);
 
                         Transaction testTransaction = null;
                         try (Session session = createSessionFactory().openSession()) {
@@ -86,8 +86,8 @@ public class Main {
                             do {
                                 card = new Card();
                                 System.out.print("Enter HeadLine: ");
-                                String pHeadLine = reader.readLine();
-                                card.setHeadline(pHeadLine);
+                                String headLine = reader.readLine();
+                                card.setHeadline(headLine);
                                 card.setUser(user);
                                 myCardList.add(card);
 
@@ -97,21 +97,21 @@ public class Main {
                                 do {
                                     instCard = new Institution();
                                     System.out.print("Enter name institution: ");
-                                    String pInstName = reader.readLine();
-                                    instCard.setName(pInstName);
+                                    String instName = reader.readLine();
+                                    instCard.setName(instName);
                                     myInstList.add(instCard);
 
                                     System.out.println("Желаете ещё добавить институт (1/0)?");
-                                    Integer pAnsInstCard = Integer.parseInt(reader.readLine());
-                                    if (pAnsInstCard == 0) stopCreateInstCard = true;
+                                    Integer ansInstCard = Integer.parseInt(reader.readLine());
+                                    if (ansInstCard == 0) stopCreateInstCard = true;
                                 } while (stopCreateInstCard == false);
 
-                                card.setInstitution(myInstList);
+                                card.setInstitutions(myInstList);
                                 session.save(card);
 
                                 System.out.println("Желаете ещё создать карточку (1/0)?");
-                                Integer pAns = Integer.parseInt(reader.readLine());
-                                if (pAns == 0) stopCreateCards = true;
+                                Integer answer = Integer.parseInt(reader.readLine());
+                                if (answer == 0) stopCreateCards = true;
 
                             } while (stopCreateCards == false);
 
@@ -137,8 +137,8 @@ public class Main {
                             List<User> collection = query.getResultList();
 
                             System.out.println("Список пользователей");
-                            for (User s : collection) {
-                                System.out.println(s);
+                            for (User userFor : collection) {
+                                System.out.println(userFor);
                             }
 
                             System.out.println("SUCCESS");
@@ -151,7 +151,7 @@ public class Main {
 
                     case 3:
                         System.out.print("Enter User name: ");
-                        String pUserNameForCard = reader.readLine();
+                        String userNameForCard = reader.readLine();
 
                         try (Session session = createSessionFactory().openSession()) {
 
@@ -160,7 +160,7 @@ public class Main {
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> usersRoot = getUser.from(User.class);
                             getUser.select(usersRoot);
-                            getUser.where(cb.equal(usersRoot.get("name"), pUserNameForCard));
+                            getUser.where(cb.equal(usersRoot.get("name"), userNameForCard));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
                             System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
@@ -173,15 +173,15 @@ public class Main {
                                 Root<Card> myRoot = getUserCards.from(Card.class);
                                 getUserCards.select(myRoot);
                                 getUserCards.where(cb.equal(myRoot.get("user"), userIdis));
-                                Query<Card> query2 = session.createQuery(getUserCards);
-                                List<Card> resultCards = query2.getResultList();
+                                Query<Card> cardQuery = session.createQuery(getUserCards);
+                                List<Card> resultCards = cardQuery.getResultList();
 
-                                System.out.println("Список карточек пользователя (" + pUserNameForCard + ") ");
-                                for (Card s : resultCards) {
-                                    System.out.println(s);
+                                System.out.println("Список карточек пользователя (" + userNameForCard + ") ");
+                                for (Card cardFor : resultCards) {
+                                    System.out.println(cardFor);
                                 }
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pUserNameForCard + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + userNameForCard + ") не найден!");
                             }
 
                             System.out.println("SUCCESS DONE");
@@ -203,18 +203,18 @@ public class Main {
                             List<User> collection = query.getResultList();
 
                             System.out.println("Список пользователей");
-                            for (User s : collection) {
-                                System.out.println(s);
+                            for (User userFor : collection) {
+                                System.out.println(userFor);
                             }
 
                             System.out.print("Enter user name for DELETE: ");
-                            String pUsName = reader.readLine();
+                            String usName = reader.readLine();
 
                             CriteriaBuilder cb = session.getCriteriaBuilder();
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> usersRoot = getUser.from(User.class);
                             getUser.select(usersRoot);
-                            getUser.where(cb.equal(usersRoot.get("name"), pUsName));
+                            getUser.where(cb.equal(usersRoot.get("name"), usName));
                             Query<User> querySelect = session.createQuery(getUser);
                             List<User> resultsUser = querySelect.getResultList();
                             Integer userId = resultsUser.get(0).getId_user();
@@ -242,7 +242,7 @@ public class Main {
                                 System.out.println("SUCCESS DONE");
 
                             } else {
-                                System.out.println("Пользователь с именем " + pUsName + " не найден");
+                                System.out.println("Пользователь с именем " + usName + " не найден");
                             }
 
 
@@ -280,7 +280,7 @@ public class Main {
                     case 10:
                         System.out.println("Update Institution Card");
                         System.out.print("Enter User name: ");
-                        String pUserCard2 = reader.readLine();
+                        String userNameForUpdCard = reader.readLine();
 
                         Transaction transactionDel = null;
                         try (Session session = createSessionFactory().openSession()) {
@@ -289,12 +289,12 @@ public class Main {
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
-                            Root<User> c = getUser.from(User.class);
-                            getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUserCard2));
+                            Root<User> userRoot = getUser.from(User.class);
+                            getUser.select(userRoot);
+                            getUser.where(cb.equal(userRoot.get("name"), userNameForUpdCard));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
-                            System.out.println("Пользователь " + pUserCard2 + ": \n" + resultsUser);
+                            System.out.println("Пользователь " + userNameForUpdCard + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
@@ -304,63 +304,68 @@ public class Main {
                                 Root<Card> cRoot = getUserCard2.from(Card.class);
                                 getUserCard2.select(cRoot);
                                 getUserCard2.where(cbGetUserCard.equal(cRoot.get("user"), userIdis));
-                                Query<Card> query2 = session.createQuery(getUserCard2);
-                                List<Card> resultsUserCard = query2.getResultList();
-                                System.out.println("Карточки у пользователя" + pUserCard2 + ":");
-                                for (Card uCars : resultsUserCard)
-                                    System.out.println("name: " + uCars.getHeadline());
+                                Query<Card> cardQuery = session.createQuery(getUserCard2);
+                                List<Card> resultsUserCard = cardQuery.getResultList();
+                                System.out.println("Карточки у пользователя" + userNameForUpdCard + ":");
+                                for (Card card : resultsUserCard) {
+                                    System.out.println("name: " + card.getHeadline());
+                                }
 
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
-                                String pHeadLine = reader.readLine();
+                                String headLine = reader.readLine();
                                 CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
                                 Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("user"), userIdis);
-                                Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
-                                getUserCard.where(cb.and(p1, p2));
+                                Predicate predicateFirst = cb.equal(card.get("user"), userIdis);
+                                Predicate predicateSecond = cb.equal(card.get("headline"), headLine);
+                                getUserCard.where(cb.and(predicateFirst, predicateSecond));
 
                                 Query<Card> queryUserCard = session.createQuery(getUserCard);
                                 Card resultsCars = queryUserCard.getSingleResult();
-                                List<Institution> ins = resultsCars.getInstitution();
+                                List<Institution> ins = resultsCars.getInstitutions();
 
-                                System.out.print("Имена институтов пользователя " + pUserCard2 + "\n");
-                                for (Institution i : ins) System.out.println(i);
+                                System.out.print("Имена институтов пользователя " + userNameForUpdCard + "\n");
+                                for (Institution inst : ins){
+                                    System.out.println(inst);
+                                }
 
                                 Integer cardIdis = resultsCars.getId();
                                 System.out.println("Id карточки: " + cardIdis);
 
                                 System.out.print("Enter OLD institution NAME: ");
-                                String pOldInstName = reader.readLine();
+                                String oldInstName = reader.readLine();
 
                                 System.out.print("Enter NEW institution NAME: ");
-                                String pNesInstName = reader.readLine();
+                                String newInstName = reader.readLine();
 
                                 boolean isRevers = false;
                                 for (Institution i : ins) {
-                                    if (pOldInstName.equals(i.getName())) {
-                                        i.setName(pNesInstName);
+                                    if (oldInstName.equals(i.getName())) {
+                                        i.setName(newInstName);
                                         isRevers = true;
                                         System.out.print("Новое имя установлено!");
                                     }
                                 }
 
                                 if (isRevers) {
-                                    resultsCars.setInstitution(ins);
+                                    resultsCars.setInstitutions(ins);
                                     session.update(resultsCars);
                                     transactionDel.commit();
 
                                     System.out.print("Обновлённый список институтов\n");
-                                    for (Institution i : ins) System.out.println(i);
+                                    for (Institution inst : ins) {
+                                        System.out.println(inst);
+                                    }
 
                                     System.out.println("SUCCESS");
                                 } else {
-                                    System.out.print("Введённое имя института (" + pOldInstName + ") не найдено!\n");
+                                    System.out.print("Введённое имя института (" + oldInstName + ") не найдено!\n");
                                 }
 
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pUserCard2 + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + userNameForUpdCard + ") не найден!");
                             }
 
                             session.close();
@@ -372,7 +377,7 @@ public class Main {
                     case 11:
                         System.out.println("Update Card");
                         System.out.println("Enter User name: ");
-                        String pUserNameForUpdCard = reader.readLine();
+                        String myUserNameForUpdCard = reader.readLine();
 
                         try (Session session = createSessionFactory().openSession()) {
 
@@ -382,7 +387,7 @@ public class Main {
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> c = getUser.from(User.class);
                             getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUserNameForUpdCard));
+                            getUser.where(cb.equal(c.get("name"), myUserNameForUpdCard));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
                             System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
@@ -402,9 +407,9 @@ public class Main {
                                 Root<Card> my = criteriaUpdate.from(Card.class);
                                 criteriaUpdate.set("headline", strNew);
 
-                                Predicate p1 = cardUpd.equal(my.get("user"), userIdis);
-                                Predicate p2 = cardUpd.equal(my.get("headline"), strOld);
-                                criteriaUpdate.where(cardUpd.and(p1, p2));
+                                Predicate predicateFirst = cardUpd.equal(my.get("user"), userIdis);
+                                Predicate predicateSecond = cardUpd.equal(my.get("headline"), strOld);
+                                criteriaUpdate.where(cardUpd.and(predicateFirst, predicateSecond));
 
 
                                 Transaction transactionUpd = session.beginTransaction();
@@ -413,21 +418,21 @@ public class Main {
 
                                 // вывод результата
                                 CriteriaQuery<Card> getUserCards = cb.createQuery(Card.class);
-                                Root<Card> my2 = getUserCards.from(Card.class);
-                                getUserCards.select(my2);
-                                getUserCards.where(cb.equal(my2.get("user"), userIdis));
-                                Query<Card> query2 = session.createQuery(getUserCards);
-                                List<Card> resultCards = query2.getResultList();
+                                Root<Card> myRoot = getUserCards.from(Card.class);
+                                getUserCards.select(myRoot);
+                                getUserCards.where(cb.equal(myRoot.get("user"), userIdis));
+                                Query<Card> cardQuery = session.createQuery(getUserCards);
+                                List<Card> resultCards = cardQuery.getResultList();
 
-                                System.out.println("Список карточек пользователя (" + pUserNameForUpdCard + ") ");
-                                for (Card s : resultCards) {
-                                    System.out.println(s);
+                                System.out.println("Список карточек пользователя (" + myUserNameForUpdCard + ") ");
+                                for (Card cardFor : resultCards) {
+                                    System.out.println(cardFor);
                                 }
 
                                 System.out.println("SUCCESS updated");
 
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pUserNameForUpdCard + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + myUserNameForUpdCard + ") не найден!");
                             }
 
                             System.out.println("SUCCESS DONE");
@@ -440,13 +445,13 @@ public class Main {
                     case 12:
                         try (Session session = createSessionFactory().openSession()) {
                             System.out.print("Enter user name: ");
-                            String pUsName = reader.readLine();
+                            String usName = reader.readLine();
 
                             CriteriaBuilder cb = session.getCriteriaBuilder();
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> c = getUser.from(User.class);
                             getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUsName));
+                            getUser.where(cb.equal(c.get("name"), usName));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
                             if (resultsUser.size() != 0) {
@@ -454,18 +459,18 @@ public class Main {
                                 Integer userIdi = resultsUser.get(0).getId_user();
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
-                                String pHeadLine = reader.readLine();
+                                String headLine = reader.readLine();
                                 CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
                                 Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("user"), userIdi);
-                                Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
-                                getUserCard.where(cb.and(p1, p2));
+                                Predicate predicateFirst = cb.equal(card.get("user"), userIdi);
+                                Predicate predicateSecond = cb.equal(card.get("headline"), headLine);
+                                getUserCard.where(cb.and(predicateFirst, predicateSecond));
 
                                 Query<Card> queryUserCard = session.createQuery(getUserCard);
                                 List<Card> results = queryUserCard.getResultList();
-                                List<Institution> ins = results.get(0).getInstitution();
+                                List<Institution> ins = results.get(0).getInstitutions();
 
                                 System.out.print("Вся информация об этой карточке будет адалена! Удалить? (1/0)");
                                 Integer myAnsw = Integer.parseInt(reader.readLine());
@@ -481,7 +486,7 @@ public class Main {
                                     System.out.println("SUCCESS DONE");
                                 }
                             } else {
-                                System.out.println("Пользователь с именем " + pUsName + " не найден");
+                                System.out.println("Пользователь с именем " + usName + " не найден");
                             }
 
                             session.close();
@@ -493,7 +498,7 @@ public class Main {
                     case 20:
                         System.out.println("Select institution");
                         System.out.print("Enter User name: ");
-                        String pUs = reader.readLine();
+                        String userNameForSelectInst = reader.readLine();
 
                         try (Session session = createSessionFactory().openSession()) {
 
@@ -501,10 +506,10 @@ public class Main {
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> c = getUser.from(User.class);
                             getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUs));
+                            getUser.where(cb.equal(c.get("name"), userNameForSelectInst));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
-                            System.out.println("Данные пользователя " + pUs + ": \n" + resultsUser);
+                            System.out.println("Данные пользователя " + userNameForSelectInst + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
@@ -515,29 +520,29 @@ public class Main {
                                 getUserCardInfo.where(cb.equal(cardRoot.get("user"), userIdis));
                                 Query<Card> query2 = session.createQuery(getUserCardInfo);
                                 List<Card> resultsUserCard = query2.getResultList();
-                                System.out.println("Карточки у пользователя" + pUs + ": \n" + resultsUserCard);
+                                System.out.println("Карточки у пользователя" + userNameForSelectInst + ": \n" + resultsUserCard);
 
                                 System.out.print("Enter HeadLine: ");
-                                String pHeadLine = reader.readLine();
+                                String headLine = reader.readLine();
                                 CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
                                 Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("user"), userIdis);
-                                Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
-                                getUserCard.where(cb.and(p1, p2));
+                                Predicate predicateFirst = cb.equal(card.get("user"), userIdis);
+                                Predicate predicateSecond = cb.equal(card.get("headline"), headLine);
+                                getUserCard.where(cb.and(predicateFirst, predicateSecond));
 
                                 Query<Card> queryUserCard = session.createQuery(getUserCard);
                                 List<Card> results = queryUserCard.getResultList();
-                                List<Institution> ins = results.get(0).getInstitution();
+                                List<Institution> ins = results.get(0).getInstitutions();
 
-                                System.out.print("Имена институтов пользователя " + pUs + "\n");
-                                for (Institution i : ins) {
-                                    System.out.println(i);
+                                System.out.print("Имена институтов пользователя " + userNameForSelectInst + "\n");
+                                for (Institution inst : ins) {
+                                    System.out.println(inst);
                                 }
 
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pUs + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + userNameForSelectInst + ") не найден!");
                             }
 
                             session.close();
@@ -549,7 +554,7 @@ public class Main {
                     case 21:
                         System.out.println("Delete institution");
                         System.out.print("Enter User name: ");
-                        String pUsCard = reader.readLine();
+                        String userNameDelCard = reader.readLine();
 
                         Transaction transactionDelInst = null;
                         try (Session session = createSessionFactory().openSession()) {
@@ -558,12 +563,12 @@ public class Main {
                             // беру ID пользователя
                             CriteriaBuilder cb = session.getCriteriaBuilder();
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
-                            Root<User> c = getUser.from(User.class);
-                            getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUsCard));
+                            Root<User> userRoot = getUser.from(User.class);
+                            getUser.select(userRoot);
+                            getUser.where(cb.equal(userRoot.get("name"), userNameDelCard));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
-                            System.out.println("Данные пользователя " + pUsCard + ": \n" + resultsUser);
+                            System.out.println("Данные пользователя " + userNameDelCard + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
@@ -575,49 +580,51 @@ public class Main {
                                 getUserCardInfo.where(cb.equal(cardRoot.get("user"), userIdis));
                                 Query<Card> query2 = session.createQuery(getUserCardInfo);
                                 List<Card> resultsUserCard = query2.getResultList();
-                                System.out.println("Карточки у пользователя" + pUsCard + ": \n" + resultsUserCard);
+                                System.out.println("Карточки у пользователя" + userNameDelCard + ": \n" + resultsUserCard);
 
                                 // поиск Id карточки
                                 System.out.print("Enter HeadLine: ");
-                                String pHeadLine = reader.readLine();
+                                String headLine = reader.readLine();
                                 CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
                                 Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("user"), userIdis);
-                                Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
-                                getUserCard.where(cb.and(p1, p2));
+                                Predicate predicateFirst = cb.equal(card.get("user"), userIdis);
+                                Predicate predicateSecond = cb.equal(card.get("headline"), headLine);
+                                getUserCard.where(cb.and(predicateFirst, predicateSecond));
 
                                 Query<Card> queryUserCard = session.createQuery(getUserCard);
                                 Card results = queryUserCard.getSingleResult();
-                                List<Institution> ins = results.getInstitution();
+                                List<Institution> ins = results.getInstitutions();
 
-                                System.out.print("Имена институтов пользователя " + pUsCard + "\n");
-                                for (Institution i : ins) System.out.println(i);
+                                System.out.print("Имена институтов пользователя " + userNameDelCard + "\n");
+                                for (Institution inst : ins){
+                                    System.out.println(inst);
+                                }
 
                                 System.out.print("Enter institution NAME for delete: ");
-                                String pDelIame = reader.readLine();
+                                String instNameForDel = reader.readLine();
 
                                 Institution instForDel = null;
                                 for (Institution ii : ins) {
-                                    if (pDelIame.equals(ii.getName())) {
+                                    if (instForDel.equals(ii.getName())) {
                                         instForDel = ii;
                                     }
                                 }
                                 if(instForDel != null) {
                                     ins.remove(instForDel);
 
-                                    results.setInstitution(ins);
+                                    results.setInstitutions(ins);
                                     session.update(results);
                                     transactionDelInst.commit();
 
                                     System.out.println("SUCCESS");
                                 } else {
-                                    System.out.println("Институт с именем "+ pDelIame +" не найден!");
+                                    System.out.println("Институт с именем "+ instForDel +" не найден!");
                                 }
 
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pUsCard + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + userNameDelCard + ") не найден!");
                             }
 
                             session.close();
@@ -630,11 +637,11 @@ public class Main {
                         System.out.println("Insert user only");
                         User userOnly = new User();
                         System.out.print("Enter User name: ");
-                        String pUserNameOnly = reader.readLine();
-                        userOnly.setName(pUserNameOnly);
+                        String userNameOnly = reader.readLine();
+                        userOnly.setName(userNameOnly);
                         System.out.print("Enter password: ");
-                        String pPswdOnly = reader.readLine();
-                        userOnly.setPassword(pPswdOnly);
+                        String userPassOnly = reader.readLine();
+                        userOnly.setPassword(userPassOnly);
 
                         Transaction transAddUserOnly = null;
                         try (Session session = createSessionFactory().openSession()) {
@@ -655,7 +662,7 @@ public class Main {
                     case 31:
                         System.out.print("Insert card only");
                         System.out.print("Enter User name: ");
-                        String pUserNameForCardOnly = reader.readLine();
+                        String userNameForCardOnly = reader.readLine();
 
                         Transaction transactionAddCard = null;
                         try (Session session = createSessionFactory().openSession()) {
@@ -666,7 +673,7 @@ public class Main {
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> c = getUser.from(User.class);
                             getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pUserNameForCardOnly));
+                            getUser.where(cb.equal(c.get("name"), userNameForCardOnly));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
                             System.out.println("ВЫВОД (результат поиска select): " + resultsUser);
@@ -677,14 +684,14 @@ public class Main {
 
                                 Boolean stopCreateCards = false;
                                 Card card;
-                                List<Card> myCardList = new ArrayList<Card>();
+                                List<Card> cardList = new ArrayList<Card>();
                                 do {
                                     card = new Card();
                                     System.out.print("Enter HeadLine: ");
                                     String pHeadLine = reader.readLine();
                                     card.setHeadline(pHeadLine);
                                     card.setUser(resultsUser.get(0));
-                                    myCardList.add(card);
+                                    cardList.add(card);
 
                                     Boolean stopCreateInstCard = false;
                                     Institution instCard = null;
@@ -692,21 +699,21 @@ public class Main {
                                     do {
                                         instCard = new Institution();
                                         System.out.print("Enter name institution: ");
-                                        String pInstName = reader.readLine();
-                                        instCard.setName(pInstName);
+                                        String instName = reader.readLine();
+                                        instCard.setName(instName);
                                         myInstList.add(instCard);
 
                                         System.out.println("Желаете ещё добавить институт (1/0)?");
-                                        Integer pAnsInstCard = Integer.parseInt(reader.readLine());
-                                        if (pAnsInstCard == 0) stopCreateInstCard = true;
+                                        Integer answerInstCard = Integer.parseInt(reader.readLine());
+                                        if (answerInstCard == 0) stopCreateInstCard = true;
                                     } while (stopCreateInstCard == false);
 
-                                    card.setInstitution(myInstList);
+                                    card.setInstitutions(myInstList);
                                     session.save(card);
 
                                     System.out.println("Желаете ещё создать карточку (1/0)?");
-                                    Integer pAns = Integer.parseInt(reader.readLine());
-                                    if (pAns == 0) stopCreateCards = true;
+                                    Integer answer = Integer.parseInt(reader.readLine());
+                                    if (answer == 0) stopCreateCards = true;
 
                                 } while (stopCreateCards == false);
 
@@ -717,7 +724,7 @@ public class Main {
 
 
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pUserNameForCardOnly + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + userNameForCardOnly + ") не найден!");
                             }
 
                             System.out.println("SUCCESS DONE");
@@ -731,7 +738,7 @@ public class Main {
                     case 32:
                         System.out.println("Select institution");
                         System.out.print("Enter User name: ");
-                        String pNameUsStr = reader.readLine();
+                        String nameUsStr = reader.readLine();
 
                         Transaction transAddInst = null;
                         try (Session session = createSessionFactory().openSession()) {
@@ -741,10 +748,10 @@ public class Main {
                             CriteriaQuery<User> getUser = cb.createQuery(User.class);
                             Root<User> c = getUser.from(User.class);
                             getUser.select(c);
-                            getUser.where(cb.equal(c.get("name"), pNameUsStr));
+                            getUser.where(cb.equal(c.get("name"), nameUsStr));
                             Query<User> query = session.createQuery(getUser);
                             List<User> resultsUser = query.getResultList();
-                            System.out.println("Данные пользователя " + pNameUsStr + ": \n" + resultsUser);
+                            System.out.println("Данные пользователя " + nameUsStr + ": \n" + resultsUser);
 
                             if (resultsUser.size() != 0) {
                                 Integer userIdis = resultsUser.get(0).getId_user();
@@ -753,50 +760,52 @@ public class Main {
                                 Root<Card> cardRoot = getUserCardInfo.from(Card.class);
                                 getUserCardInfo.select(cardRoot);
                                 getUserCardInfo.where(cb.equal(cardRoot.get("user"), userIdis));
-                                Query<Card> query2 = session.createQuery(getUserCardInfo);
-                                List<Card> resultsUserCard = query2.getResultList();
-                                System.out.println("Карточки у пользователя " + pNameUsStr + ":");
+                                Query<Card> cardQuery = session.createQuery(getUserCardInfo);
+                                List<Card> resultsUserCard = cardQuery.getResultList();
+                                System.out.println("Карточки у пользователя " + nameUsStr + ":");
                                 for (Card card: resultsUserCard){
                                     System.out.println("name: " + card.getHeadline());
                                 }
 
                                 System.out.print("Enter HeadLine: ");
-                                String pHeadLine = reader.readLine();
+                                String headLine = reader.readLine();
                                 CriteriaQuery<Card> getUserCard = cb.createQuery(Card.class);
                                 Root<Card> card = getUserCard.from(Card.class);
                                 getUserCard.select(card);
 
-                                Predicate p1 = cb.equal(card.get("user"), userIdis);
-                                Predicate p2 = cb.equal(card.get("headline"), pHeadLine);
-                                getUserCard.where(cb.and(p1, p2));
+                                Predicate predicateFirst = cb.equal(card.get("user"), userIdis);
+                                Predicate predicateSecond = cb.equal(card.get("headline"), headLine);
+                                getUserCard.where(cb.and(predicateFirst, predicateSecond));
 
                                 Query<Card> queryUserCard = session.createQuery(getUserCard);
                                 Card results = queryUserCard.getSingleResult();
-                                List<Institution> ins = results.getInstitution();
+                                List<Institution> ins = results.getInstitutions();
 
-                                System.out.print("Имена институтов пользователя " + pNameUsStr + "\n");
-                                for (Institution i : ins) {
-                                    System.out.println(i);
+                                System.out.print("Имена институтов пользователя " + nameUsStr + "\n");
+                                for (Institution inst : ins) {
+                                    System.out.println(inst);
                                 }
 
                                 boolean flagStop = false;
                                 do{
                                     System.out.print("Enter name new institut: ");
-                                    String pNewNameInstStr = reader.readLine();
+                                    String newNameInstStr = reader.readLine();
                                     Institution newInst = new Institution();
-                                    newInst.setName(pNewNameInstStr);
+                                    newInst.setName(newNameInstStr);
                                     ins.add(newInst);
                                     System.out.println("Желаете ещё добавить институт (1/0)?");
-                                    Integer pAns = Integer.parseInt(reader.readLine());
+                                    Integer answer = Integer.parseInt(reader.readLine());
 
-                                    if (pAns == 0){
+                                    if (answer == 0){
                                         flagStop = true;
-                                        results.setInstitution(ins);
+                                        results.setInstitutions(ins);
                                         session.update(results);
                                         transAddInst.commit();
                                         System.out.println("--- SUCCESS ADDED ---");
-                                        System.out.print("Имена институтов пользователя " + pNameUsStr + "\n");
-                                        for (Institution i : ins) System.out.println("name: " + i.getName());
+                                        System.out.print("Имена институтов пользователя " + nameUsStr + "\n");
+                                        for (Institution inst : ins){
+                                            System.out.println("name: " + inst.getName());
+                                        }
                                         session.clear();
                                         session.close();
 
@@ -805,7 +814,7 @@ public class Main {
 
 
                             } else {
-                                System.out.println("Пользователь с данным UserName (" + pNameUsStr + ") не найден!");
+                                System.out.println("Пользователь с данным UserName (" + nameUsStr + ") не найден!");
                             }
 
                             session.close();
@@ -826,7 +835,6 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Некорректные данные!\nПодробнее: " + e.getMessage());
         }
-
 
         System.out.println("\n----- END PROGRAM -----\n");
 

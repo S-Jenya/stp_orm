@@ -17,7 +17,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<Card> card;
+    private Set<Card> cards;
 
     public void setPassword(String password) {
         this.password = password;
@@ -28,6 +28,23 @@ public class User {
     }
 
     public User() {    }
+
+    public void setCards(Set<Card> cards) {
+        this.cards = cards;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Set<Card> getCards() {
+        return cards;
+    }
+
     public User(Integer id, String name, String password) {
         this.id_user = id;
         this.name = name;
