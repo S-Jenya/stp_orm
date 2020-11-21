@@ -607,7 +607,7 @@ public class Main {
 
                                 Institution instForDel = null;
                                 for (Institution ii : ins) {
-                                    if (instForDel.equals(ii.getName())) {
+                                    if (instNameForDel.equals(ii.getName())) {
                                         instForDel = ii;
                                     }
                                 }
@@ -620,7 +620,7 @@ public class Main {
 
                                     System.out.println("SUCCESS");
                                 } else {
-                                    System.out.println("Институт с именем "+ instForDel +" не найден!");
+                                    System.out.println("Институт с именем "+ instNameForDel +" не найден!");
                                 }
 
                             } else {
@@ -629,7 +629,7 @@ public class Main {
 
                             session.close();
                         } catch (Exception e) {
-                            System.out.println("ОШИБКА при UPDATE\nПодробнее: " + e.getMessage());
+                            System.out.println("ОШИБКА при DEL института\nПодробнее: " + e.getMessage());
                         }
                         break;
 

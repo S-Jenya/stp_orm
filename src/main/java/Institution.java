@@ -26,7 +26,7 @@ public class Institution {
         return id;
     }
 
-    @ManyToMany(mappedBy = "institution")
+    @ManyToMany(mappedBy = "institutions")
     private List<Card> cards;
 
     public Institution() {    }
